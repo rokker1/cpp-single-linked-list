@@ -87,9 +87,7 @@ class SingleLinkedList {
             return !(operator==(rhs));
         }
         [[nodiscard]] bool operator==(const BasicIterator<Type>& rhs) const noexcept {
-            
-            
-            if(this->node_ == rhs.node_) {
+            if(node_ == rhs.node_) {
                 return true;
             }
             else {
@@ -104,9 +102,8 @@ class SingleLinkedList {
         // Возвращает ссылку на самого себя
         // Инкремент итератора, не указывающего на существующий элемент списка, приводит к неопределённому поведению
         BasicIterator& operator++() noexcept {
-            
+            assert(node_ != nullptr);
             node_ = node_->next_node;
-            
             return *this;
         }
         BasicIterator operator++(int) noexcept {
@@ -119,12 +116,14 @@ class SingleLinkedList {
         // Вызов этого оператора у итератора, не указывающего на существующий элемент списка,
         // приводит к неопределённому поведению
         [[nodiscard]] reference operator*() const noexcept {
+            assert(node_ != nullptr);
             return node_->value;
         }
         // Операция доступа к члену класса. Возвращает указатель на текущий элемент списка
         // Вызов этого оператора у итератора, не указывающего на существующий элемент списка,
         // приводит к неопределённому поведению
         [[nodiscard]] pointer operator->() const noexcept {
+            assert(node_ != nullptr);
             return &(node_->value);
         }
 
@@ -191,6 +190,7 @@ public:
      * Если при создании элемента будет выброшено исключение, список останется в прежнем состоянии
      */
     Iterator InsertAfter(ConstIterator pos, const Type& value) {
+        assert(pos.node_ != nullptr);
         Node* new_node = new Node(value, pos.node_->next_node);
         pos.node_->next_node = new_node;
         ++size_;
@@ -198,10 +198,12 @@ public:
     }
 
     void PopFront() noexcept {
-        auto front_ptr = head_.next_node;
-        head_.next_node = head_.next_node->next_node;
-        delete front_ptr;
-        --size_;
+        if(!IsEmpty()) {
+            auto front_ptr = head_.next_node;
+            head_.next_node = head_.next_node->next_node;
+            delete front_ptr;
+            --size_;
+        }
     }
 
      /*
@@ -209,6 +211,7 @@ public:
      * Возвращает итератор на элемент, следующий за удалённым
      */
     Iterator EraseAfter(ConstIterator pos) noexcept {
+        assert(pos.node_ != nullptr);
         const Node* delete_ptr = pos.node_->next_node;
         pos.node_->next_node = delete_ptr->next_node;
         delete delete_ptr;
